@@ -72,6 +72,10 @@ public class Ventana extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         Servidor servidor = new Servidor ();
+        Thread nuevohiloservidor = new Thread(servidor);
+        nuevohiloservidor.start();
+        jTextField1.setEnabled(false);
+        jButton1.setEnabled(false);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**

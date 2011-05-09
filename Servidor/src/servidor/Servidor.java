@@ -11,9 +11,12 @@ import java.net.Socket;
  *
  * @author ignaciocardenas
  */
-public class Servidor {
+public class Servidor implements Runnable {
 
     public Servidor() {
+    }
+
+    public void run() {
         try {
             ServerSocket socketservidor = new ServerSocket(6000);
             while (true) {
