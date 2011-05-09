@@ -7,6 +7,7 @@ package servidor;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -32,8 +33,8 @@ public class HiloServidor implements Runnable {
                 salida = new DataOutputStream(nuevosocketservidor.getOutputStream());
                 System.out.println("Se conecto el servidor " + nuevosocketservidor.getInetAddress());
 
-                salida.writeUTF("Ip del viejo: "+socketservidor.getInetAddress());
-                salida.writeUTF("Ip del nuevo: "+nuevosocketservidor.getInetAddress());
+                salida.writeUTF("Ip del viejo: "+InetAddress.getLocalHost().getHostAddress());
+                salida.writeUTF("Ip del nuevo: "+nuevosocketservidor.getInetAddress().getHostAddress());
             }
 
         } catch (Exception e) {
