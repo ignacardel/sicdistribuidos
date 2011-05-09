@@ -22,6 +22,7 @@ public class HiloEnvio implements Runnable {
     private String nombrearchivo;
     private String solicitud;
     private Socket s;
+    private long tamano;
     private long cantidaddescargada;
 
     HiloEnvio(Socket nuevosocketcliente) {
@@ -53,12 +54,18 @@ public class HiloEnvio implements Runnable {
     private void enviararchivo() {
         try {
             nombrearchivo = entrada.readUTF();
+
+            File f = new File(ruta + nombrearchivo);
+            tamano = f.length();
             archivo = new FileInputStream(ruta + nombrearchivo);
             cantidaddescargada = entrada.readLong();
 
             if (cantidaddescargada != 0) {
                 archivo.skip(cantidaddescargada);
             }
+            
+            salida.writeLong(tamano);
+
             System.out.println("Iniciando transmision con" + String.valueOf(archivo.getChannel().size()) + " bytes");
             byte[] buffer = new byte[1024];
             int len;
