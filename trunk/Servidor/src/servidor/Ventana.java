@@ -11,6 +11,12 @@
 
 package servidor;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
 /**
  *
  * @author ignaciocardenas
@@ -18,6 +24,14 @@ package servidor;
 public class Ventana extends javax.swing.JFrame {
 
     /** Creates new form Ventana */
+    private String ip0=null;
+    private String ip1=null;
+    private String ip2=null;
+
+    private Socket ser;
+    private String ip;
+    private DataInputStream entrada;
+    private DataOutputStream salida;
     public Ventana() {
         initComponents();
     }
@@ -43,27 +57,29 @@ public class Ventana extends javax.swing.JFrame {
             }
         });
 
-        jTextField1.setText("jTextField1");
+        jTextField1.setText("IP SERVIDOR");
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(143, 143, 143)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jTextField1)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jButton1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(160, Short.MAX_VALUE))
+                .add(49, 49, 49)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(14, 14, 14)
+                        .add(jButton1))
+                    .add(jTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 135, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(53, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .add(114, 114, 114)
+                .addContainerGap(39, Short.MAX_VALUE)
                 .add(jTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 32, Short.MAX_VALUE)
+                .add(32, 32, 32)
                 .add(jButton1)
-                .add(97, 97, 97))
+                .add(28, 28, 28))
         );
 
         pack();
@@ -74,10 +90,45 @@ public class Ventana extends javax.swing.JFrame {
         Servidor servidor = new Servidor ();
         Thread nuevohiloservidor = new Thread(servidor);
         nuevohiloservidor.start();
+        
+        HiloServidor hiloservidorconoce = new HiloServidor();
+        Thread nuevohiloservidorconoce = new Thread(hiloservidorconoce);
+        nuevohiloservidorconoce.start();
+
         jTextField1.setEnabled(false);
         jButton1.setEnabled(false);
+
+        if (jTextField1.getText().matches("IP SERVIDOR") == false)
+        {
+        this.conocer(jTextField1.getText());
+
+        }
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void conocer(String ip)
+    {
+        try{
+            ser = new Socket(ip, 6001);
+            entrada = new DataInputStream(ser.getInputStream());
+            salida = new DataOutputStream(ser.getOutputStream());
+            //salida.writeUTF("GET");
+
+            System.out.println("servidores");
+            System.out.println(entrada.readUTF());
+            System.out.println(entrada.readUTF());
+
+
+            ser.close();
+        } catch (UnknownHostException ex) {
+            System.out.println("Error de conexion");
+        } catch (IOException ex) {
+            System.out.println("Error de conexion");
+        }
+
+
+
+    }
     /**
     * @param args the command line arguments
     */
