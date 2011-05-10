@@ -44,6 +44,8 @@ public class HiloEnvio implements Runnable {
             if (solicitud.equals("RDIR")) {
                 this.listararhivos();
             }
+
+
             s.close();
             System.out.println("Fin de conexion de " + s.getInetAddress());
         } catch (IOException ex) {
@@ -85,5 +87,12 @@ public class HiloEnvio implements Runnable {
 
     private void listararhivos() {
         throw new UnsupportedOperationException("Not yet implemented");
+    }
+    private void listarip(){
+        System.out.println("Se envio el IP");
+        try {
+            salida.writeUTF("ip0/ip1/ip2");
+            // leer ip del xml y mandaron al cliente
+        } catch (IOException ex) {Logger.getLogger(HiloEnvio.class.getName()).log(Level.SEVERE, null, ex);}
     }
 }

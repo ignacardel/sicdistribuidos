@@ -64,7 +64,6 @@ public class HiloServidor implements Runnable {
     }
 
 
-
         public void conocer(String ip)
         {
             try{
@@ -80,6 +79,7 @@ public class HiloServidor implements Runnable {
                 System.out.println("Servidores");
                 System.out.println("IP A DONDE ME CONECTE: " + entrada.readUTF());
                 System.out.println("MI IP                : " + entrada.readUTF());
+                System.out.println("");
 
                 this.guardarip(nuevoip, ser, 1);// metodo para guardar la ip nueva
                                                 // tambien crea un objeto chequea
@@ -92,7 +92,6 @@ public class HiloServidor implements Runnable {
 
 
          }
-
 
         private void guardarip(String nuevoip, Socket s, int opcion)
         {// cheque que variable esta libre y ahi guarda el ip y crea el objeto para estar revisando la conex
@@ -132,20 +131,18 @@ public class HiloServidor implements Runnable {
 
         public void quitarservidor (int num)
         {
-
-        System.out.println("Se va a sacar al servidor");
             if (num == 1)
             {
-            this.ip1 = null;
-            
+               System.out.println("Se ha caido al servidor # " + num + " con ip: " +this.ip1 );
+               this.ip1 = null;
+               this.chequea1 = null;
             }
             if (num == 2)
             {
-            this.ip2 = null;
-            
+                System.out.println("Se ha caido al servidor # " + num + " con ip: " +this.ip2 );
+               this.ip2 = null;
+               this.chequea2 = null;
             }
-
-        System.out.println("Se ha sacado al servidor # : " + num );
         }
 
     public String getIp0() {
