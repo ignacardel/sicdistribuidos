@@ -14,8 +14,11 @@ package servidor;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -24,14 +27,15 @@ import java.net.UnknownHostException;
 public class Ventana extends javax.swing.JFrame {
 
     /** Creates new form Ventana */
-    private String ip0=null;
-    private String ip1=null;
-    private String ip2=null;
+
 
     private Socket ser;
     private String ip;
     private DataInputStream entrada;
     private DataOutputStream salida;
+    private HiloServidor hiloservidorconoce = null;
+    private Servidor servidor;
+
     public Ventana() {
         initComponents();
     }
@@ -87,48 +91,25 @@ public class Ventana extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        Servidor servidor = new Servidor ();
-        Thread nuevohiloservidor = new Thread(servidor);
-        nuevohiloservidor.start();
-        
-        HiloServidor hiloservidorconoce = new HiloServidor();
-        Thread nuevohiloservidorconoce = new Thread(hiloservidorconoce);
-        nuevohiloservidorconoce.start();
-
         jTextField1.setEnabled(false);
         jButton1.setEnabled(false);
+        servidor = new Servidor ();
+        Thread nuevohiloservidor = new Thread(servidor);
+        nuevohiloservidor.start();
+
+        try {
+            hiloservidorconoce = new HiloServidor(this);
+            Thread nuevohiloservidorconoce = new Thread(hiloservidorconoce);
+            nuevohiloservidorconoce.start();
+        } catch (UnknownHostException ex) {System.out.println("No consiguio localhost");}
 
         if (jTextField1.getText().matches("IP SERVIDOR") == false)
-        {
-        this.conocer(jTextField1.getText());
-
+        {// si hay un ip en el campo trata de conectarse con el
+            hiloservidorconoce.conocer(jTextField1.getText());
         }
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void conocer(String ip)
-    {
-        try{
-            ser = new Socket(ip, 6001);
-            entrada = new DataInputStream(ser.getInputStream());
-            salida = new DataOutputStream(ser.getOutputStream());
-            //salida.writeUTF("GET");
-
-            System.out.println("servidores");
-            System.out.println(entrada.readUTF());
-            System.out.println(entrada.readUTF());
-
-
-            ser.close();
-        } catch (UnknownHostException ex) {
-            System.out.println("Error de conexion");
-        } catch (IOException ex) {
-            System.out.println("Error de conexion");
-        }
-
-
-
-    }
     /**
     * @param args the command line arguments
     */
