@@ -6,6 +6,7 @@ package servidor;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,6 +39,9 @@ public class HiloEnvio implements Runnable {
     public void run() {
         try {
             solicitud = entrada.readUTF();
+            if (solicitud.equals("IP")) {
+                this.enviarips();
+            }
             if (solicitud.equals("GET")) {
                 this.enviararchivo();
             }
@@ -65,7 +69,7 @@ public class HiloEnvio implements Runnable {
             if (cantidaddescargada != 0) {
                 archivo.skip(cantidaddescargada);
             }
-            
+
             salida.writeLong(tamano);
 
             System.out.println("Iniciando transmision con" + String.valueOf(archivo.getChannel().size()) + " bytes");
@@ -88,11 +92,16 @@ public class HiloEnvio implements Runnable {
     private void listararhivos() {
         throw new UnsupportedOperationException("Not yet implemented");
     }
-    private void listarip(){
-        System.out.println("Se envio el IP");
+
+    private void enviarips() {
         try {
-            salida.writeUTF("ip0/ip1/ip2");
-            // leer ip del xml y mandaron al cliente
-        } catch (IOException ex) {Logger.getLogger(HiloEnvio.class.getName()).log(Level.SEVERE, null, ex);}
+            XMLServidor xml = new XMLServidor();
+            ArrayList<String> listaips = xml.cargaIPs();
+            salida.writeUTF(listaips.get(0));
+            salida.writeUTF(listaips.get(1));
+            salida.writeUTF(listaips.get(2));
+        } catch (IOException ex) {
+            Logger.getLogger(HiloEnvio.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
