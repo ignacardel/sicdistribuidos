@@ -28,6 +28,7 @@ public class HiloChequea implements Runnable {
     private String recibe;
     private int numerochequeador;
     private boolean continuar = true;
+    private String ip;
 
     public HiloChequea(DataInputStream entrada, DataOutputStream salida, HiloServidor hiloservidor, int opcion, int numerochequeador){
       
@@ -35,6 +36,12 @@ public class HiloChequea implements Runnable {
             this.salida = salida;
             this.opcion = opcion;
             this.numerochequeador = numerochequeador;
+            this.hiloservidor = hiloservidor;
+            
+            if (this.numerochequeador == 1)
+                this.ip = this.hiloservidor.getIp1();
+            else
+                this.ip = this.hiloservidor.getIp2();
     }
 
     public void run() {
@@ -45,25 +52,29 @@ public class HiloChequea implements Runnable {
             if ( opcion == 0)
             {
                 try {
-                    try {Thread.sleep(2000); } catch (InterruptedException ex) { System.out.println("pausa");}
+                    try {Thread.sleep(1000); } catch (InterruptedException ex) { System.out.println("fundio en la pausa");}
                     salida.writeUTF("act");
-                    System.out.println("sigue vivo clien");
+                    System.out.println("Activo: " + this.ip);
                     recibe = entrada.readUTF();
                 } catch (IOException ex) {
+                    System.out.println("Error en conexion con: "+this.ip);
                     hiloservidor.quitarservidor(this.numerochequeador);
                     continuar = false;
-                    System.out.println("SE CAYO");}
+
+                }
             }
             else
             {
                 try {
                     recibe = entrada.readUTF();
-                    System.out.println("sigue activo");
+                    System.out.println("Activo: " + this.ip);
                     salida.writeUTF("act");
                 } catch (IOException ex) {
+                    System.out.println("Error en conexion con: "+this.ip);
                     hiloservidor.quitarservidor(this.numerochequeador);
                     continuar = false;
-                    System.out.println("SE CAYO");}
+                   
+                }
             }
         }
 
