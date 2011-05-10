@@ -83,7 +83,7 @@ public class HiloServidor implements Runnable {
 
                 this.guardarip(nuevoip, ser, 1);// metodo para guardar la ip nueva
                                                 // tambien crea un objeto chequea
-                ser.close();
+                //ser.close();
             } catch (UnknownHostException ex) {
                 System.out.println("Error de conexion");
             } catch (IOException ex) {
@@ -94,7 +94,7 @@ public class HiloServidor implements Runnable {
          }
 
 
-        private void guardarip(String nuevoip, Socket s, int Opcion)
+        private void guardarip(String nuevoip, Socket s, int opcion)
         {// cheque que variable esta libre y ahi guarda el ip y crea el objeto para estar revisando la conex
 
 
@@ -105,7 +105,10 @@ public class HiloServidor implements Runnable {
                     System.out.println("SERVIDOR 1: "+ ip1);
                     System.out.println("Servidor 2: "+ ip2);
                     chequea1 = null;
-                    chequea1 = new HiloChequea(s, this);
+                    chequea1 = new HiloChequea(entrada,salida, this, opcion,1);
+                    Thread chequeador1 = new Thread(chequea1);
+                     chequeador1.start();
+                    // empezar el hilo
                  }
                  else
                  {
@@ -116,12 +119,33 @@ public class HiloServidor implements Runnable {
                         System.out.println("Servidor 1: "+ ip1);
                         System.out.println("SERVIDOR 2: "+ ip2);
                         chequea2 = null;
-                        chequea2 = new HiloChequea(s, this);
+                        chequea2 = new HiloChequea(entrada,salida, this,opcion,2);
+                        Thread chequeador2 = new Thread(chequea2);
+                        chequeador2.start();
+                        // empezar el hilo
                      }
                      else
                         System.out.println("Ya estan conectados los tres servidores.");
                  }
 
+        }
+
+        public void quitarservidor (int num)
+        {
+
+        System.out.println("Se va a sacar al servidor");
+            if (num == 1)
+            {
+            this.ip1 = null;
+            this.chequea1 = null;
+            }
+            if (num == 2)
+            {
+            this.ip2 = null;
+            this.chequea2 = null;
+            }
+
+        System.out.println("Se ha sacado al servidor # : " + num );
         }
 
     public String getIp0() {
