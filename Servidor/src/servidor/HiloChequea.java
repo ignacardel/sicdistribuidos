@@ -27,6 +27,7 @@ public class HiloChequea implements Runnable {
     private int opcion;
     private String recibe;
     private int numerochequeador;
+    private boolean continuar = true;
 
     public HiloChequea(DataInputStream entrada, DataOutputStream salida, HiloServidor hiloservidor, int opcion, int numerochequeador){
       
@@ -39,7 +40,7 @@ public class HiloChequea implements Runnable {
     public void run() {
 
 
-        while (true)
+        while (continuar == true)
         {
             if ( opcion == 0)
             {
@@ -50,6 +51,7 @@ public class HiloChequea implements Runnable {
                     recibe = entrada.readUTF();
                 } catch (IOException ex) {
                     hiloservidor.quitarservidor(this.numerochequeador);
+                    continuar = false;
                     System.out.println("SE CAYO");}
             }
             else
@@ -60,6 +62,7 @@ public class HiloChequea implements Runnable {
                     salida.writeUTF("act");
                 } catch (IOException ex) {
                     hiloservidor.quitarservidor(this.numerochequeador);
+                    continuar = false;
                     System.out.println("SE CAYO");}
             }
         }

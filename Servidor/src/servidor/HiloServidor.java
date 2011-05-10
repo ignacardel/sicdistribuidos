@@ -137,12 +137,12 @@ public class HiloServidor implements Runnable {
             if (num == 1)
             {
             this.ip1 = null;
-            this.chequea1 = null;
+            
             }
             if (num == 2)
             {
             this.ip2 = null;
-            this.chequea2 = null;
+            
             }
 
         System.out.println("Se ha sacado al servidor # : " + num );
