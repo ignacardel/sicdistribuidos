@@ -98,7 +98,7 @@ public class HiloServidor implements Runnable {
         {// cheque que variable esta libre y ahi guarda el ip y crea el objeto para estar revisando la conex
 
 
-                 if (ip1 != null)
+                 if (ip1 == null)
                  {
                     ip1=nuevoip;
                     System.out.println("Servidor 0: "+ ip0);
@@ -106,19 +106,20 @@ public class HiloServidor implements Runnable {
                     System.out.println("Servidor 2: "+ ip2);
                     chequea1 = null;
                     chequea1 = new HiloChequea(s, this);
-                 }else
-                 if(ip2 != null)
-                 {
-                    ip2=nuevoip;
-                    System.out.println("Servidor 0: "+ ip0);
-                    System.out.println("Servidor 1: "+ ip1);
-                    System.out.println("SERVIDOR 2: "+ ip2);
-                    chequea2 = null;
-                    chequea2 = new HiloChequea(s, this);
                  }
                  else
                  {
-                    System.out.println("Ya estan conectados los tres servidores.");
+                     if(ip2 == null)
+                     {
+                        ip2=nuevoip;
+                        System.out.println("Servidor 0: "+ ip0);
+                        System.out.println("Servidor 1: "+ ip1);
+                        System.out.println("SERVIDOR 2: "+ ip2);
+                        chequea2 = null;
+                        chequea2 = new HiloChequea(s, this);
+                     }
+                     else
+                        System.out.println("Ya estan conectados los tres servidores.");
                  }
 
         }
