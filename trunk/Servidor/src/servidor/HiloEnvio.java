@@ -39,13 +39,12 @@ public class HiloEnvio implements Runnable {
     public void run() {
         try {
             solicitud = entrada.readUTF();
-            if (solicitud.equals("IP")) {
-                this.enviarips();
-            }
             if (solicitud.equals("GET")) {
+                this.enviarips();
                 this.enviararchivo();
             }
             if (solicitud.equals("RDIR")) {
+                this.enviarips();
                 this.listararhivos();
             }
 
