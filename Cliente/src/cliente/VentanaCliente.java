@@ -10,7 +10,8 @@
  */
 package cliente;
 
-import java.io.IOException;
+import java.io.*;
+import java.net.*;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,16 +23,23 @@ import javax.swing.table.DefaultTableModel;
  */
 public class VentanaCliente extends javax.swing.JFrame {
 
-    Vector <HiloDescarga> VectorHilos;
+    Vector<HiloDescarga> VectorHilos;
     int selected = -1;
+    private String ip0 = null;
+    private String ip1 = null;
+    private String ip2 = null;
+
     /** Creates new form Ventana */
     public VentanaCliente() {
-        VectorHilos=new Vector <HiloDescarga> ();
+        VectorHilos = new Vector<HiloDescarga>();
         initComponents();
         pausar.setVisible(false);
         cancelar.setVisible(false);
         eliminar.setVisible(false);
-        this.llenarcombobox();
+        jDescargar.setVisible(false);
+        jComboBox1.setVisible(false);
+        XMLCliente xml = new XMLCliente();
+        xml.cargaArchivos(this);
     }
 
     /** This method is called from within the constructor to
@@ -44,7 +52,6 @@ public class VentanaCliente extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel2 = new javax.swing.JLabel();
-        jArchivo = new javax.swing.JTextField();
         jIP = new javax.swing.JTextField();
         jDescargar = new javax.swing.JButton();
         jListarArchivos = new javax.swing.JButton();
@@ -61,13 +68,6 @@ public class VentanaCliente extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("Lucida Grande", 2, 13));
         jLabel2.setText("Conectar a:");
 
-        jArchivo.setText("Nombre Archivo");
-        jArchivo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jArchivoActionPerformed(evt);
-            }
-        });
-
         jIP.setText("localhost");
         jIP.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -82,21 +82,26 @@ public class VentanaCliente extends javax.swing.JFrame {
             }
         });
 
-        jListarArchivos.setText("Listar Archivos");
+        jListarArchivos.setText("Obtener lista de archivos");
+        jListarArchivos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jListarArchivosActionPerformed(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Meiryo", 1, 13));
-        jLabel1.setText("Proyecto 1");
+        jLabel1.setText("SICTransfer");
 
         jTabla.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Archivo", "Cantidad Descargada", "Total", "Estado", "hilo"
+                "Archivo", "Cantidad Descargada(KB)", "Total(KB)", "Estado", "hilo"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Long.class, java.lang.Object.class, java.lang.String.class, java.lang.Integer.class
+                java.lang.String.class, java.lang.Long.class, java.lang.Long.class, java.lang.String.class, java.lang.Integer.class
             };
             boolean[] canEdit = new boolean [] {
                 false, false, false, false, false
@@ -110,6 +115,9 @@ public class VentanaCliente extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        jTabla.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        jTabla.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jTabla.getTableHeader().setReorderingAllowed(false);
         jTabla.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jTablaMouseClicked(evt);
@@ -153,32 +161,29 @@ public class VentanaCliente extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(31, 31, 31)
+                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 587, Short.MAX_VALUE)
-                            .add(layout.createSequentialGroup()
-                                .add(jLabel2)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                                    .add(jIP)
-                                    .add(jArchivo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 182, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(layout.createSequentialGroup()
-                                        .add(jDescargar)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                    .add(jListarArchivos)))
-                            .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 233, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap())
                     .add(layout.createSequentialGroup()
                         .add(cancelar)
                         .add(27, 27, 27)
                         .add(pausar)
                         .add(33, 33, 33)
-                        .add(eliminar))))
+                        .add(eliminar))
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                                .add(jLabel2)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jIP))
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 233, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(18, 18, 18)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jComboBox1, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jListarArchivos, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jDescargar))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 832, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -190,27 +195,22 @@ public class VentanaCliente extends javax.swing.JFrame {
                     .add(jLabel2)
                     .add(jIP, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jListarArchivos))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jArchivo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jDescargar)
-                    .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                    .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jDescargar))
+                .add(18, 18, 18)
                 .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 156, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(18, 18, 18)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(cancelar)
                     .add(pausar)
                     .add(eliminar))
-                .addContainerGap(67, Short.MAX_VALUE))
+                .addContainerGap(51, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void jArchivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jArchivoActionPerformed
-        // TODO add your handling code here:
-}//GEN-LAST:event_jArchivoActionPerformed
 
     private void jIPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jIPActionPerformed
         // TODO add your handling code here:
@@ -218,33 +218,31 @@ public class VentanaCliente extends javax.swing.JFrame {
 
     private void jDescargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jDescargarActionPerformed
         // TODO add your handling code here:
-     
-        HiloDescarga nuevadescarga = new HiloDescarga(this, jIP.getText(), jComboBox1.getSelectedItem().toString(),VectorHilos.size(),0);
+        XMLCliente xml = new XMLCliente();
+        xml.escribirArchivos(this);
+        HiloDescarga nuevadescarga = new HiloDescarga(this, jIP.getText(), jComboBox1.getSelectedItem().toString(), VectorHilos.size(), 0);
         VectorHilos.add(nuevadescarga);
         Thread nuevohilodescarga = new Thread(nuevadescarga);
         nuevohilodescarga.start();
-        
     }//GEN-LAST:event_jDescargarActionPerformed
 
     private void cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelarActionPerformed
         try {
 
-            String status = (String)jTabla.getValueAt(selected, 3);
+            String status = (String) jTabla.getValueAt(selected, 3);
 
-            if ( status.matches("Descargando") == true)
-            {
-                int hilo = (Integer)jTabla.getValueAt(selected, 4);
+            if (status.matches("Descargando") == true) {
+                int hilo = (Integer) jTabla.getValueAt(selected, 4);
                 VectorHilos.get(hilo).cerrar();
                 VectorHilos.setElementAt(null, hilo);
                 jTabla.setValueAt("Cancelado", selected, 3);
                 jTabla.setValueAt(null, selected, 4);
-            }
-            else
-            {
+            } else {
                 jTabla.setValueAt("Cancelado", selected, 3);
                 jTabla.setValueAt(null, selected, 4);
             }
-
+            XMLCliente xml = new XMLCliente();
+            xml.escribirArchivos(this);
             this.eliminar.setVisible(true);
             this.pausar.setVisible(true);
             this.pausar.setText("Recomenzar");
@@ -256,53 +254,49 @@ public class VentanaCliente extends javax.swing.JFrame {
     }//GEN-LAST:event_cancelarActionPerformed
 
     private void jTablaFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTablaFocusGained
-
-
         // TODO add your handling code here:
     }//GEN-LAST:event_jTablaFocusGained
 
     private void jTablaFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTablaFocusLost
-       //     cancelar.setVisible(false);
-       //     pausar.setVisible(false);
-       //     pausar.setText("Pausar");
-       //     eliminar.setVisible(false);   // TODO add your handling code here:
+        //     cancelar.setVisible(false);
+        //     pausar.setVisible(false);
+        //     pausar.setText("Pausar");
+        //     eliminar.setVisible(false);   // TODO add your handling code here:
     }//GEN-LAST:event_jTablaFocusLost
 
     private void pausarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pausarActionPerformed
         try {
 
-            String accion = (String)jTabla.getValueAt(selected, 3);
+            String accion = (String) jTabla.getValueAt(selected, 3);
+            if (accion.matches("Descargando") == true) {
 
-            if(accion.matches("Descargando")== true)
-            {
-
-                int hilo = (Integer)jTabla.getValueAt(selected, 4);
+                int hilo = (Integer) jTabla.getValueAt(selected, 4);
                 VectorHilos.get(hilo).cerrar();
                 VectorHilos.setElementAt(null, hilo);
                 jTabla.setValueAt("Pausado", selected, 3);
                 jTabla.setValueAt(null, selected, 4);
                 this.pausar.setText("Continuar");
             }
-            if(accion.matches("Pausado")== true)
-            {
-                
-                HiloDescarga nuevadescarga = new HiloDescarga(this, jIP.getText(), (String)jTabla.getValueAt(selected, 0),VectorHilos.size(),1);
+            if (accion.matches("Pausado") == true) {
+
+                HiloDescarga nuevadescarga = new HiloDescarga(this, jIP.getText(), (String) jTabla.getValueAt(selected, 0), VectorHilos.size(), 1);
                 VectorHilos.add(nuevadescarga);
                 Thread nuevohilodescarga = new Thread(nuevadescarga);
                 nuevohilodescarga.start();
                 this.pausar.setText("Pausar");
 
             }
-            if(accion.matches("Cancelado")== true)
-            {
+            if (accion.matches("Cancelado") == true) {
 
-                HiloDescarga nuevadescarga = new HiloDescarga(this, jIP.getText(), (String)jTabla.getValueAt(selected, 0),VectorHilos.size(),1);
+                HiloDescarga nuevadescarga = new HiloDescarga(this, jIP.getText(), (String) jTabla.getValueAt(selected, 0), VectorHilos.size(), 1);
                 VectorHilos.add(nuevadescarga);
                 Thread nuevohilodescarga = new Thread(nuevadescarga);
                 nuevohilodescarga.start();
                 this.pausar.setText("Pausar");
                 this.cancelar.setVisible(true);
             }
+            XMLCliente xml = new XMLCliente();
+            xml.escribirArchivos(this);
 
         } catch (IOException ex) {
             Logger.getLogger(VentanaCliente.class.getName()).log(Level.SEVERE, null, ex);
@@ -313,19 +307,17 @@ public class VentanaCliente extends javax.swing.JFrame {
     private void eliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eliminarActionPerformed
         try {
 
-            String status = (String)jTabla.getValueAt(selected, 3);
+            String status = (String) jTabla.getValueAt(selected, 3);
 
-            if ( status.matches("Descargando") == true)
-            {   int hilo = (Integer)jTabla.getValueAt(selected, 4);
+            if (status.matches("Descargando") == true) {
+                int hilo = (Integer) jTabla.getValueAt(selected, 4);
                 VectorHilos.get(hilo).cerrar();
                 VectorHilos.get(hilo).borrar();
                 VectorHilos.setElementAt(null, hilo);// en vez de remove poner en null
                 ((DefaultTableModel) this.jTabla.getModel()).removeRow(selected);
-            }
-            else
-            {
-                String nombre = (String)jTabla.getValueAt(selected, 0);
-                HiloDescarga borrador = new HiloDescarga(this, null,nombre ,-1,-1);
+            } else {
+                String nombre = (String) jTabla.getValueAt(selected, 0);
+                HiloDescarga borrador = new HiloDescarga(this, null, nombre, -1, -1);
                 borrador.borrar();
                 ((DefaultTableModel) this.jTabla.getModel()).removeRow(selected);
             }
@@ -339,34 +331,29 @@ public class VentanaCliente extends javax.swing.JFrame {
     private void jTablaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTablaMouseClicked
 
         this.selected = jTabla.getSelectedRow();
-        if (this.selected >= 0 )
-        {
-            String status =(String)jTabla.getValueAt(selected, 3);
+        if (this.selected >= 0) {
+            String status = (String) jTabla.getValueAt(selected, 3);
 
-            if (status.matches("Descargando") == true)
-            {
+            if (status.matches("Descargando") == true) {
                 cancelar.setVisible(true);
                 pausar.setVisible(true);
                 pausar.setText("Pausar");
                 eliminar.setVisible(true);
             }
 
-            if (status.matches("Pausado") == true)
-            {
+            if (status.matches("Pausado") == true) {
                 cancelar.setVisible(true);
                 pausar.setText("Continuar");
                 pausar.setVisible(true);
                 eliminar.setVisible(true);
             }
-            if (status.matches("Cancelado") == true)
-            {
+            if (status.matches("Cancelado") == true) {
                 eliminar.setVisible(true);
                 pausar.setVisible(true);
                 pausar.setText("Recomenzar");
             }
 
-             if (status.matches("Descarga Completada") == true)
-            {
+            if (status.matches("Descarga Completada") == true) {
                 cancelar.setVisible(false);
                 pausar.setVisible(false);
                 pausar.setText("Pausar");
@@ -376,35 +363,64 @@ public class VentanaCliente extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jTablaMouseClicked
 
+    private void jListarArchivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jListarArchivosActionPerformed
+        // TODO add your handling code here:
+        try {
+            Socket w = new Socket(jIP.getText(), 6000);
+            DataInputStream entrada = new DataInputStream(w.getInputStream());
+            DataOutputStream salida = new DataOutputStream(w.getOutputStream());
+            salida.writeUTF("RDIR");
+            llenarcombobox(entrada.readUTF());
+            w.close();
+        } catch (UnknownHostException ex) {
+            System.out.println("Error de conexion");
+        } catch (IOException ex) {
+            System.out.println("Error de conexion");
+        }
+    }//GEN-LAST:event_jListarArchivosActionPerformed
+
     public void agregarfila(String nombre, Long cantidad, Long tamano, int hilo) {
-        ((DefaultTableModel) this.jTabla.getModel()).addRow(new Object[]{nombre, cantidad, tamano, "Descargando",hilo});
+        ((DefaultTableModel) this.jTabla.getModel()).addRow(new Object[]{nombre, cantidad / 1000, tamano / 1000, "Descargando", hilo});
     }
 
-    public void actualizarstatus(String status ,int hilo, Long cantidad) {
+    public void agregarfila(String nombre, Long cantidad, Long tamano, String estado) {
+        ((DefaultTableModel) this.jTabla.getModel()).addRow(new Object[]{nombre, cantidad, tamano, estado, null});
+    }
 
-     jTabla.setValueAt("Descargando", selected, 3);
-     jTabla.setValueAt(hilo, selected, 4);
-     jTabla.setValueAt(cantidad, selected, 1);
-     pausar.setText("Pausar");
+    public Archivo getArchivo(int i) {
+        Archivo archi = new Archivo();
+        archi.setNombre((String) jTabla.getValueAt(i, 0));
+        //archi.setCantidad((Long) jTabla.getValueAt(i, 1));
+        archi.setTotal((Long) jTabla.getValueAt(i, 2));
+        archi.setEstado((String) jTabla.getValueAt(i, 3));
+        if (archi.getEstado().equals("Descargando")) {
+            archi.setEstado("Pausado");
+        }
+        return archi;
+    }
+
+    public void actualizarstatus(String status, int hilo, Long cantidad) {
+
+        jTabla.setValueAt("Descargando", selected, 3);
+        jTabla.setValueAt(hilo, selected, 4);
+        jTabla.setValueAt(cantidad / 1000000, selected, 1);
+        pausar.setText("Pausar");
 
     }
 
-    public void actualizarcantidad(Long cantidad,int hilo) {
+    public void actualizarcantidad(Long cantidad, int hilo) {
         int count = jTabla.getRowCount();
-        for (int i= 0;i<count;i++)
-        {
-           if (jTabla.getValueAt(i, 4) != null  && (Integer)jTabla.getValueAt(i, 4) == hilo)
-           {
-             jTabla.setValueAt(cantidad, i, 1);
-             count = i;
-           }
-        
+        for (int i = 0; i < count; i++) {
+            if (jTabla.getValueAt(i, 4) != null && (Integer) jTabla.getValueAt(i, 4) == hilo) {
+                jTabla.setValueAt(cantidad / 1000, i, 1);
+                count = i;
+            }
+
         }
 
-        long total = (Long)jTabla.getValueAt(count, 2);
-        long lleva = (Long)jTabla.getValueAt(count, 1);
-        if ( lleva == total)
-        {
+        long total = (Long) jTabla.getValueAt(count, 2);
+        long lleva = (Long) jTabla.getValueAt(count, 1);
+        if (lleva == total) {
             VectorHilos.setElementAt(null, hilo);
             jTabla.setValueAt("Descarga Completada", count, 3);
             jTabla.setValueAt(null, count, 4);
@@ -413,27 +429,55 @@ public class VentanaCliente extends javax.swing.JFrame {
             pausar.setText("Pausar");
             eliminar.setVisible(false);
         }
+        XMLCliente xml = new XMLCliente();
+        xml.escribirArchivos(this);
     }
 
-    public String getStatus(int acc)  {
-        if (acc == 1)
-         return (String)jTabla.getValueAt(selected, 3);
-        else
-         return "null";
+    public String getStatus(int acc) {
+        if (acc == 1) {
+            return (String) jTabla.getValueAt(selected, 3);
+        } else {
+            return "null";
+        }
     }
 
-    public int getRowCount()  {
+    public int getRowCount() {
         return jTabla.getRowCount();
     }
 
-
-    private void llenarcombobox(){
-      this.jComboBox1.addItem("1.mp4");
-      this.jComboBox1.addItem("2.mp4");
-      this.jComboBox1.addItem("3.avi");
-
+    public void llenarcombobox(String listaarchivos) {
+        System.out.println(listaarchivos);
+        String[] lista = listaarchivos.split("/");
+        for (int i = 0; i < lista.length; i++) {
+            this.jComboBox1.addItem(lista[i]);
+        }
+        jDescargar.setVisible(true);
+        jComboBox1.setVisible(true); 
     }
 
+    public String getIp0() {
+        return ip0;
+    }
+    
+    public void setIp0(String ip0) {
+        this.ip0 = ip0;
+    }
+
+    public String getIp1() {
+        return ip1;
+    }
+
+    public void setIp1(String ip1) {
+        this.ip1 = ip1;
+    }
+
+    public String getIp2() {
+        return ip2;
+    }
+
+    public void setIp2(String ip2) {
+        this.ip2 = ip2;
+    }
     /**
      * @param args the command line arguments
      */
@@ -448,7 +492,6 @@ public class VentanaCliente extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelar;
     private javax.swing.JButton eliminar;
-    private javax.swing.JTextField jArchivo;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JButton jDescargar;
     private javax.swing.JTextField jIP;
