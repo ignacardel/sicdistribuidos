@@ -33,7 +33,7 @@ public class HiloServidor implements Runnable {
         ip0 = InetAddress.getLocalHost().getHostAddress(); // asigan a ip0 la variable del localhost
         XMLServidor xml = new XMLServidor();
         xml.escribirIPs(ip0, ip1, ip2);
-        xml.cargaIPs();
+        //xml.cargaIPs();
     }
 
     public void run() {
