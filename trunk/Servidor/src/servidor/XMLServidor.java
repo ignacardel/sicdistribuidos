@@ -16,7 +16,7 @@ import org.jdom.output.*;
  */
 public class XMLServidor {
 
-   public ArrayList<String> cargaIPs() {
+    public ArrayList<String> cargaIPs() {
         ArrayList<String> listaips = new ArrayList<String>();
         try {
             SAXBuilder builder = new SAXBuilder(false);
@@ -29,7 +29,6 @@ public class XMLServidor {
                 Element e = (Element) k.next();
                 listaips.add(e.getText());
             }
-
         } catch (FileNotFoundException F) {
             System.out.println("Archivo XML no encontrado");
         } catch (Exception e) {
@@ -38,6 +37,26 @@ public class XMLServidor {
         return listaips;
     }
 
+    public String cargaArchivos() {
+        String listafiles = "";
+        try {
+            SAXBuilder builder = new SAXBuilder(false);
+            Document doc = builder.build("ListaArchivos.xml");
+            Element raiz = doc.getRootElement();
+            List listaarchivos = raiz.getChildren("archivo");
+            Iterator k = listaarchivos.iterator();
+            while (k.hasNext()) {
+                int i = 0;
+                Element e = (Element) k.next();
+                listafiles = listafiles + e.getText() + "/";
+            }
+        } catch (FileNotFoundException F) {
+            System.out.println("Archivo XML no encontrado");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return listafiles;
+    }
 //    public class agregarIP extends Element {
 //
 //        public agregarIP(String ip) {

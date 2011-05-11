@@ -44,8 +44,7 @@ public class HiloEnvio implements Runnable {
                 this.enviararchivo();
             }
             if (solicitud.equals("RDIR")) {
-                this.enviarips();
-                this.listararhivos();
+                this.enviararhivos();
             }
 
 
@@ -88,8 +87,15 @@ public class HiloEnvio implements Runnable {
 
     }
 
-    private void listararhivos() {
-        throw new UnsupportedOperationException("Not yet implemented");
+    private void enviararhivos() {
+        try {
+            XMLServidor xml = new XMLServidor();
+            System.out.println(xml.cargaArchivos());
+            salida.writeUTF(xml.cargaArchivos());
+            
+        } catch (IOException ex) {
+            Logger.getLogger(HiloEnvio.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void enviarips() {
@@ -97,8 +103,11 @@ public class HiloEnvio implements Runnable {
             XMLServidor xml = new XMLServidor();
             ArrayList<String> listaips = xml.cargaIPs();
             salida.writeUTF(listaips.get(0));
+            System.out.println(listaips.get(0));
             salida.writeUTF(listaips.get(1));
+            System.out.println(listaips.get(1));
             salida.writeUTF(listaips.get(2));
+            System.out.println(listaips.get(2));
         } catch (IOException ex) {
             Logger.getLogger(HiloEnvio.class.getName()).log(Level.SEVERE, null, ex);
         }
