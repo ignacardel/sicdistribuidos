@@ -13,7 +13,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 /**
- *
+ * clase en la cual se esperan y manejan conexiones con otros servidores
  * @author cotu
  */
 public class HiloServidor implements Runnable {
@@ -44,6 +44,9 @@ public class HiloServidor implements Runnable {
         this.conocer = conocer;
     }
 
+    /**
+     * metodo en donde se esperan conexiones de otros servidores. 
+     */
     public void run() {
         // espera conexiones de otros servidores y se intercambian ips
         // se busca en alguna de las otras variables de ip cual esta vacia y ahi se pone el nuevo ip
@@ -74,6 +77,12 @@ public class HiloServidor implements Runnable {
         }
     }
 
+    /**
+     * metodo por el cual se intenta conocer a un servidor por medio de su ip
+     * si se logra la conexion el servidor quedara guardado y en
+     * constante conexion
+     * @param ip
+     */
     public void conocer(String ip) {
         try {
             // metodo que se conecta con alguno de los otros servidores para conocerlos
@@ -102,7 +111,13 @@ public class HiloServidor implements Runnable {
 
 
     }
-
+/**
+ * metodo en el cual se guarda el ip del servidor con el que se hizo la nueva
+ * conexion. si ya hay tres servidores en el sistemas, no guardara nada.
+ * @param nuevoip
+ * @param s
+ * @param opcion
+ */
     private void guardarip(String nuevoip, Socket s, int opcion) {// cheque que variable esta libre y ahi guarda el ip y crea el objeto para estar revisando la conex
 
 
@@ -135,11 +150,15 @@ public class HiloServidor implements Runnable {
                 System.out.println("Ya estan conectados los tres servidores.");
             }
         }
-        //XMLServidor xml = new XMLServidor();
-        //xml.escribirIPs(ip0, ip1, ip2);
+  
 
     }
 
+    /**
+     * metodo por el cual un servidor es sacado de la tabla en caso de que se
+     * caiga de la red
+     * @param num
+     */
     public void quitarservidor(int num) {
         if (num == 1) {
             System.out.println("Se ha caido al servidor # " + num + " con ip: " + ips.getIp1());
@@ -151,9 +170,7 @@ public class HiloServidor implements Runnable {
             ips.setIp2("null");
             this.chequea2 = null;
         }
-        
-        //XMLServidor xml = new XMLServidor();
-        //xml.escribirIPs(ip0, ip1, ip2);
+
     }
 
 }
