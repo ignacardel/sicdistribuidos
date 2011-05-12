@@ -13,7 +13,9 @@ import java.net.Socket;
  */
 public class Servidor implements Runnable {
 
-    public Servidor() {
+    Ips ips = null;
+    public Servidor(Ips ips) {
+        this.ips = ips;
     }
 
     public void run() {
@@ -23,7 +25,7 @@ public class Servidor implements Runnable {
                 System.out.println("Esperando usuario..");
                 Socket nuevosocketcliente = socketservidor.accept();
                 System.out.println("Se conecto " + nuevosocketcliente.getInetAddress());
-                HiloEnvio nuevocliente = new HiloEnvio(nuevosocketcliente);
+                HiloEnvio nuevocliente = new HiloEnvio(nuevosocketcliente, ips);
                 Thread nuevohilocliente = new Thread(nuevocliente);
                 nuevohilocliente.start();
             }
