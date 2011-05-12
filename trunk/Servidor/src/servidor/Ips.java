@@ -6,7 +6,8 @@ package servidor;
  */
 
 /**
- *
+ * Esta clase sirve para guardar los ips de todos los servidores globalmente
+ * y que todos en el servidor puedan acceder a ella. 
  * @author cotu
  */
 public class Ips {

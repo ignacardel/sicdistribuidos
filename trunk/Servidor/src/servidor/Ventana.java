@@ -21,7 +21,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ *clase en donde se inicia el servidor como primero de la red o conectandose
+ * a otro para obtener la informacion de los otros servidores
+ * y poder actuar como servidor de descarga
  * @author ignaciocardenas
  */
 public class Ventana extends javax.swing.JFrame {
@@ -88,7 +90,11 @@ public class Ventana extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+/**
+ * metodo el cual inicia el servidor y si hay algun ip en el campo de texto
+ * intanta conectarse con el servidor con ese ip
+ * @param evt
+ */
     private void ConectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ConectarActionPerformed
         // TODO add your handling code here:
         Ips ips = new Ips();

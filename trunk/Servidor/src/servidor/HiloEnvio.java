@@ -11,7 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * clase que crea un hilo cuando se conecta un cliente para hacer una peticion
  * @author ignaciocardenas
  */
 public class HiloEnvio implements Runnable {
@@ -44,6 +44,10 @@ public class HiloEnvio implements Runnable {
         }
     }
 
+    /**
+     * metodo en donde se verica que tipo de peticion solicito el cliente.
+     * bien sea, descarga de archivo o peticion de lista
+     */
     public void run() {
         try {
             solicitud = entrada.readUTF();
@@ -64,6 +68,10 @@ public class HiloEnvio implements Runnable {
         }
     }
 
+    /**
+     * metodo por el cual se manda al cliente el archivo cuanto este solicite
+     * la descarga.
+     */
     private void enviararchivo() {
         try {
             nombrearchivo = entrada.readUTF();
@@ -98,6 +106,10 @@ public class HiloEnvio implements Runnable {
 
     }
 
+    /**
+     * en este metodo se envia la lista de archivo del servidor al cliente como
+     * un string para que el cliente sepa cuales archivos estan disponibles
+     */
     private void enviararhivos() {
         try {
             XMLServidor xml = new XMLServidor();
@@ -109,6 +121,11 @@ public class HiloEnvio implements Runnable {
         }
     }
 
+    /**
+     * metodo para verificar si hay algun cambio en la tabla de ips global
+     * si se consigue algun ip diferente entonces es notificado al cliente
+     * para que este actualize su tabla.
+     */
     private void compararips()
     {
         boolean cambio = false;
@@ -147,6 +164,9 @@ public class HiloEnvio implements Runnable {
         }
     }
 
+    /**
+     * metodo que se llama para enviar la tabla de ips al cliente
+     */
     private void enviarips() {
         try {
 

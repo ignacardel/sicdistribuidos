@@ -8,7 +8,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 /**
- *
+ * En esta clase se esperan las conexiones de los usarios
+ * para luego verificar su tipo de peticion y proceder a ejecutarla
  * @author ignaciocardenas
  */
 public class Servidor implements Runnable {

@@ -14,7 +14,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ *clase en la cual se crea un hilo para tener constante verificacion de los
+ * estados de los otros servidores
  * @author cotu
  */
 public class HiloChequea implements Runnable {
@@ -31,6 +32,15 @@ public class HiloChequea implements Runnable {
     private Ips ips = null;
     private boolean ipnuevo;
 
+    /**
+     *
+     * @param entrada
+     * @param salida
+     * @param hiloservidor
+     * @param opcion
+     * @param numerochequeador
+     * @param ips
+     */
     public HiloChequea(DataInputStream entrada, DataOutputStream salida, HiloServidor hiloservidor, int opcion, int numerochequeador, Ips ips) {
 
         this.ips = ips;
@@ -54,6 +64,10 @@ public class HiloChequea implements Runnable {
         this.ipnuevo = ipnuevo;
     }
 
+    /**
+     * metodo que corre un hilo el cual esta constantemente verificando si los
+     * otros sevidores siguen conectados o activos. 
+     */
     public void run() {
 
 
@@ -98,12 +112,18 @@ public class HiloChequea implements Runnable {
                     System.out.println("Error en conexion con: " + this.ip);
                     hiloservidor.quitarservidor(this.numerochequeador);
                     continuar = false;
+
                 }
             }
         }
 
     }
 
+/**
+ * procedimiento que detecta cambio en la tabla de ip para informar a
+ * los demas servidores o intentar conocerlos.
+ * @param listarecibida
+ */
     public void detectarcambios(String listarecibida) {
         String[] lista = listarecibida.split("/");
         int cont=0;
@@ -123,8 +143,6 @@ public class HiloChequea implements Runnable {
 
         if (cont==3) hiloservidor.conocer(lista[1]);
 
-
-
         cont=0;
 
         if (lista[2].matches(ips.getIp0())==false) cont++;
@@ -133,41 +151,6 @@ public class HiloChequea implements Runnable {
 
         if (cont==3) hiloservidor.conocer(lista[2]);
         
-
-//        if (ips.getIp1().matches(lista[0]) == true || ips.getIp1().matches(lista[1]) == true || ips.getIp1().matches(lista[2]) == true) {
-//            System.out.println("ya conocia la ip1 que me llego desde ");
-//
-//        } else {
-//
-//            System.out.println("voy a conocer una ip1");
-//
-//            if (ips.getIp1().matches(lista[0]) == false ) {
-//                hiloservidor.conocer(lista[0]);
-//            }
-//            if (ips.getIp1().matches(lista[1]) == false && ips.getIp0().matches(lista[1]) == false) {
-//                hiloservidor.conocer(lista[1]);
-//            }
-//            if (ips.getIp1().matches(lista[2]) == false && ips.getIp0().matches(lista[2]) == false) {
-//                hiloservidor.conocer(lista[2]);
-//            }
-//        }
-//
-//
-//        if (ips.getIp2().matches(lista[0]) == true || ips.getIp2().matches(lista[1]) == true || ips.getIp2().matches(lista[2]) == true) {
-//            System.out.println("ya conocia la ip2 que me llego");
-//
-//        } else {
-//            System.out.println("voy a conocer una ip2");
-//            if (ips.getIp2().matches(lista[0]) == false) {
-//                hiloservidor.conocer(lista[0]);
-//            }
-//            if (ips.getIp2().matches(lista[1]) == false && ips.getIp0().matches(lista[1]) == false) {
-//                hiloservidor.conocer(lista[1]);
-//            }
-//            if (ips.getIp2().matches(lista[2]) == false && ips.getIp0().matches(lista[2]) == false) {
-//                hiloservidor.conocer(lista[2]);
-//            }
-//        }
 
     }
 }
