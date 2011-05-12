@@ -16,10 +16,11 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.print.attribute.standard.MediaSize.Other;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
- *
+ * Ventana principal donde se visualizan las descargas
  * @author ignaciocardenas
  */
 public class VentanaCliente extends javax.swing.JFrame {
@@ -219,7 +220,10 @@ public class VentanaCliente extends javax.swing.JFrame {
     private void jIPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jIPActionPerformed
         // TODO add your handling code here:
 }//GEN-LAST:event_jIPActionPerformed
-
+/**
+ * boton que inicia la descarga de un archivo
+ * @param evt
+ */
     private void jDescargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jDescargarActionPerformed
         // TODO add your handling code here:
         XMLCliente xml = new XMLCliente();
@@ -230,6 +234,10 @@ public class VentanaCliente extends javax.swing.JFrame {
         nuevohilodescarga.start();
     }//GEN-LAST:event_jDescargarActionPerformed
 
+    /**
+     * Boton que cancela la descarga
+     * @param evt
+     */
     private void cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelarActionPerformed
         try {
 
@@ -303,6 +311,10 @@ public class VentanaCliente extends javax.swing.JFrame {
 
     }//GEN-LAST:event_pausarActionPerformed
 
+    /**
+     * Boton que elimina la descarga
+     * @param evt
+     */
     private void eliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eliminarActionPerformed
         try {
 
@@ -327,7 +339,12 @@ public class VentanaCliente extends javax.swing.JFrame {
         }
 
     }//GEN-LAST:event_eliminarActionPerformed
-
+/**
+ * Setea la fila la cual se va a seleccionar para realizar las operaciones
+ * con la descarga de archivo y cambia los botones para representar el estado
+ * de dichas operacones
+ * @param evt
+ */
     private void jTablaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTablaMouseClicked
 
         this.selected = jTabla.getSelectedRow();
@@ -362,7 +379,10 @@ public class VentanaCliente extends javax.swing.JFrame {
             }   // TODO add your handling code here:
         }
     }//GEN-LAST:event_jTablaMouseClicked
-
+/**
+ * metodo que solicita la lista de archivos que tiene la red de servidores
+ * @param evt
+ */
     private void jListarArchivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jListarArchivosActionPerformed
         // TODO add your handling code here:
         try {
@@ -370,23 +390,68 @@ public class VentanaCliente extends javax.swing.JFrame {
             DataInputStream entrada = new DataInputStream(w.getInputStream());
             DataOutputStream salida = new DataOutputStream(w.getOutputStream());
             salida.writeUTF("RDIR");
+                        System.out.println("NUEVA TABLA");
+            this.setIp0(entrada.readUTF());
+            System.out.println(this.getIp0());
+            this.setIp1(entrada.readUTF());
+            System.out.println(this.getIp1());
+            this.setIp2(entrada.readUTF());
+            System.out.println(this.getIp2());
             llenarcombobox(entrada.readUTF());
+            jListarArchivos.setVisible(false);
             w.close();
         } catch (UnknownHostException ex) {
-            System.out.println("Error de conexion");
+            JOptionPane.showMessageDialog(rootPane, "Error de conexion", "Error", JOptionPane.ERROR_MESSAGE);
         } catch (IOException ex) {
-            System.out.println("Error de conexion");
+            JOptionPane.showMessageDialog(rootPane, "Error de conexion", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_jListarArchivosActionPerformed
 
+    /**
+     * renderiza ventana de error de conexion
+     */
+    public void alertaerror(){
+        JOptionPane.showMessageDialog(rootPane, "Error de conexion", "Error", JOptionPane.ERROR_MESSAGE);
+        if (this.pausar.getText().equals("Pausar")) this.pausar.setText("Continuar");
+    }
+
+    /**
+     * renderiza mensaje de error cuando se acaban los intentos de reconexion
+     */
+    public void finintentos(){
+        JOptionPane.showMessageDialog(rootPane, "Fin de intentos de conexion", "Error", JOptionPane.ERROR_MESSAGE);
+        if (this.pausar.getText().equals("Pausar")) this.pausar.setText("Continuar");
+    }
+    /**
+     * crea una nueva fila en la lista de descargas con la informacion correspondiente
+     * LLamado desde hilodescarga
+     * @param nombre
+     * @param cantidad
+     * @param tamano
+     * @param hilo
+     */
     public void agregarfila(String nombre, Long cantidad, Long tamano, int hilo) {
         ((DefaultTableModel) this.jTabla.getModel()).addRow(new Object[]{nombre, cantidad / 1000, tamano / 1000, "Descargando", hilo});
     }
 
+    /**
+     * crea una nueva fila en la lista de descargas con la informacion correspondiente
+     * Solo es llamado desde el XML en la carga de la lista de archivos
+     * @param nombre
+     * @param cantidad
+     * @param tamano
+     * @param estado
+     */
     public void agregarfila(String nombre, Long cantidad, Long tamano, String estado) {
         ((DefaultTableModel) this.jTabla.getModel()).addRow(new Object[]{nombre, cantidad, tamano, estado, null});
     }
 
+    /**
+     * metodo que crea un objeto de tipo Archivo para que la clase
+     * XMLCliente pueda transformar el mismo a un nodo del archivo XML
+     * @param i
+     * @return
+     */
     public Archivo getArchivo(int i) {
         Archivo archi = new Archivo();
         archi.setNombre((String) jTabla.getValueAt(i, 0));
@@ -399,6 +464,12 @@ public class VentanaCliente extends javax.swing.JFrame {
         return archi;
     }
 
+    /**
+     * Metodo que intenta reconectar a otro servidor
+     * cuando se cae una descarga
+     * @param nombre
+     * @param reconectar
+     */
     public void reconectar(String nombre, int reconectar) {
 
         // busca cual es la fila q tiene el nombre del archivo y busca el hilo asociado
@@ -420,22 +491,26 @@ public class VentanaCliente extends javax.swing.JFrame {
 
 
         boolean tratar = true;
+      
         switch (reconectar) {
             case 1:
+                  this.jIP.setText("");
                 this.jIP.setText(ip1);
                 System.out.println("Tratando de reconectar con otro servidor 1    " + this.jIP.getText());
                 break;
             case 2:
+                  this.jIP.setText("");
                 this.jIP.setText(ip2);
                 System.out.println("Tratando de reconectar con otro servidor 2    " + this.jIP.getText());
                 break;
             case 3:
+                  this.jIP.setText("");
                 this.jIP.setText(ip0);
                 System.out.println("Tratando de reconectar con otro servidor 3    " + this.jIP.getText());
                 break;
             default: {
                 tratar = false;
-                System.out.println("FUNDIOOOOOOOOOOOOOOOOOOOOO");
+                JOptionPane.showMessageDialog(rootPane, "Agotados intentos de reconexion", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
 
@@ -462,6 +537,12 @@ public class VentanaCliente extends javax.swing.JFrame {
 
     }
 
+    /**
+     * actualiza el estado de la descarga del archivo
+     * @param status
+     * @param hilo
+     * @param cantidad
+     */
     public void actualizarstatus(String status, int hilo, Long cantidad) {
 
         jTabla.setValueAt("Descargando", selected, 3);
@@ -471,6 +552,11 @@ public class VentanaCliente extends javax.swing.JFrame {
 
     }
 
+    /**
+     * actualiza cantidad descarga del archivo
+     * @param cantidad
+     * @param hilo
+     */
     public void actualizarcantidad(Long cantidad, int hilo) {
         int count = jTabla.getRowCount();
         for (int i = 0; i < count; i++) {
@@ -508,6 +594,11 @@ public class VentanaCliente extends javax.swing.JFrame {
         return jTabla.getRowCount();
     }
 
+    /**
+     * metodo que llena el combo box con la lista de archivos recibida
+     * por parte de la red de servidores
+     * @param listaarchivos
+     */
     public void llenarcombobox(String listaarchivos) {
         System.out.println(listaarchivos);
         String[] lista = listaarchivos.split("/");

@@ -11,7 +11,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * Clase que crea un hilo que se encarga de la descarga un archivo enviado
+ * por el servidor
  * @author ignaciocardenas
  */
 public class HiloDescarga implements Runnable {
@@ -44,13 +45,17 @@ public class HiloDescarga implements Runnable {
 
     }
 
+    /**
+     * hilo principal en el cual se conecta con el servidor,
+     * se crean los flujos y se llama al metodo descargar
+     */
     public void run() {
         try {
             w = new Socket(ip, 6000);
             entrada = new DataInputStream(w.getInputStream());
             salida = new DataOutputStream(w.getOutputStream());
             salida.writeUTF("GET");
-            pedirips();
+            //pedirips();
             descargararchivo();
             w.close();
 
@@ -61,17 +66,28 @@ public class HiloDescarga implements Runnable {
             System.out.println("TRATANDOO ARRIBAAAAAAAAAAAAAA");
             this.ventana.reconectar(nombrearchivo, reconectar);
             }
-            else
+            else{
+                if (reconectar==4) System.out.println("MAMALO");
+                System.out.println("mamalo 2");
+                System.out.println(reconectar);
             System.out.println("Error de conexion");
+            ventana.alertaerror();}
 
             // JOptionPane.showMessageDialog(rootPane, "Error en la conexion", "", 1);
         } catch (IOException ex) {
-            System.out.println("Error de conexion");
-
+         if (reconectar>1)ventana.finintentos();
+         else
+            ventana.alertaerror();
+            
             // JOptionPane.showMessageDialog(rootPane, "Error en la conexion", "", 1);
         }
     }
 
+    /**
+     * Metodo que se encarga del intercambio de informacion previo
+     * a la descarga de un archivo y la posterior descarga del mismo
+     * asi como tambien intenta redireccionar a otro servidor en caso de caida
+     */
     private void descargararchivo() {
         try {
             
@@ -114,7 +130,7 @@ public class HiloDescarga implements Runnable {
                 int len;
                 int total = 0;
                 String solicitud = null;
-                 
+                 try{
                     while ((len = entrada.read(buffer)) > 0 && continuar == true)
                     {
                         //try{
@@ -128,6 +144,9 @@ public class HiloDescarga implements Runnable {
 //                          if (tamano == f.length())
 //                             continuar = false;
 //                        }
+
+                    }
+            }catch(Exception E){E.printStackTrace();
 
                     }
  
@@ -149,25 +168,18 @@ public class HiloDescarga implements Runnable {
 
     }
 
-    private void pedirips() {
-        try {
-
-            System.out.println("NUEVA TABLA");
-            ventana.setIp0(entrada.readUTF());
-            System.out.println(ventana.getIp0());
-            ventana.setIp1(entrada.readUTF());
-            System.out.println(ventana.getIp1());
-            ventana.setIp2(entrada.readUTF());
-            System.out.println(ventana.getIp2());
-        } catch (IOException ex) {
-            Logger.getLogger(HiloDescarga.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
+/**
+ * metodo que permite a la ventana de descargas cerrar el hilo
+ * cuando se pausa o cancela la descarga
+ * @throws IOException
+ */
 
     public void cerrar() throws IOException {
         continuar = false;
     }
-
+ /**
+  * Metodo que elimina un archivo cuando se presiona eliminar en la ventana
+  */
     public void borrar() {
         File f = new File(ruta + nombrearchivo);
         f.delete();
