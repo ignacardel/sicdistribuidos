@@ -49,15 +49,15 @@ public class Ventana extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jButton1 = new javax.swing.JButton();
+        Conectar = new javax.swing.JButton();
         jTextField1 = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jButton1.setText("jButton1");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        Conectar.setText("Conectar");
+        Conectar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                ConectarActionPerformed(evt);
             }
         });
 
@@ -72,7 +72,7 @@ public class Ventana extends javax.swing.JFrame {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
                         .add(14, 14, 14)
-                        .add(jButton1))
+                        .add(Conectar))
                     .add(jTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 135, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(53, Short.MAX_VALUE))
         );
@@ -82,18 +82,18 @@ public class Ventana extends javax.swing.JFrame {
                 .addContainerGap(39, Short.MAX_VALUE)
                 .add(jTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(32, 32, 32)
-                .add(jButton1)
+                .add(Conectar)
                 .add(28, 28, 28))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void ConectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ConectarActionPerformed
         // TODO add your handling code here:
         Ips ips = new Ips();
         jTextField1.setEnabled(false);
-        jButton1.setEnabled(false);
+        Conectar.setEnabled(false);
         servidor = new Servidor (ips);
         Thread nuevohiloservidor = new Thread(servidor);
         nuevohiloservidor.start();
@@ -109,7 +109,7 @@ public class Ventana extends javax.swing.JFrame {
             hiloservidorconoce.conocer(jTextField1.getText());
         }
 
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_ConectarActionPerformed
 
     /**
     * @param args the command line arguments
@@ -123,7 +123,7 @@ public class Ventana extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton Conectar;
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 
