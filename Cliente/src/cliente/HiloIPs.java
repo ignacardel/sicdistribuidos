@@ -8,7 +8,8 @@ import java.io.*;
 import java.net.*;
 
 /**
- *
+ * clase que genera un hilo que recibe notificaciones de
+ * cambios en la lista de IPs de la red de servidores
  * @author ignaciocardenas
  */
 public class HiloIPs implements Runnable {

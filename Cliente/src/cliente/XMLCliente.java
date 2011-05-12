@@ -11,7 +11,7 @@ import org.jdom.input.*;
 import org.jdom.output.*;
 
 /**
- *
+ * Clase que permite la carga y descarga de la lista de archivos del cliente
  * @author ignaciocardenas
  */
 public class XMLCliente {
@@ -19,6 +19,10 @@ public class XMLCliente {
     private String ruta = "Archivos/";
     //public Vector<Archivo> Varchivo = new Vector<Archivo>();
 
+    /**
+     * Metodo que carga la lista de archivos leyendo del archivo XML
+     * @param ventanita
+     */
     public void cargaArchivos(VentanaCliente ventanita) {
         try {
             SAXBuilder builder = new SAXBuilder(false);
@@ -46,6 +50,10 @@ public class XMLCliente {
         //return Varchivo;
     }
 
+
+    /**
+     * Metodo que genera un nodo de elemento archivo en el archivo xml
+     */
     public class agregarArchivo extends Element {
 
         public agregarArchivo(Archivo archivo) {
@@ -58,6 +66,10 @@ public class XMLCliente {
         }
     }
 
+    /**
+     * metodo que escribe la lista de archivos en el XML
+     * @param ventanita
+     */
     public void escribirArchivos(VentanaCliente ventanita) {
         int i = 0;
         Element root = new Element("archivos");

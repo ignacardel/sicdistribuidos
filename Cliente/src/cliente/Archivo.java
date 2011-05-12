@@ -5,7 +5,8 @@
 package cliente;
 
 /**
- *
+ * Clase que sirve de puente entre la interfaz y la lectura de la lista
+ * de archivos xml para poder cargar la lista de archivos
  * @author ignaciocardenas
  */
 public class Archivo {
@@ -14,7 +15,6 @@ public class Archivo {
     private String estado;
     private Long cantidad;
     private Long total;
-    private Double godoy;
 
     public Archivo() {
     }
