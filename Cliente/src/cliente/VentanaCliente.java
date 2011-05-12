@@ -15,6 +15,7 @@ import java.net.*;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.print.attribute.standard.MediaSize.Other;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -40,6 +41,9 @@ public class VentanaCliente extends javax.swing.JFrame {
         jComboBox1.setVisible(false);
         XMLCliente xml = new XMLCliente();
         xml.cargaArchivos(this);
+        HiloIPs hiloips = new HiloIPs(this);
+        Thread nuevohiloips = new Thread(hiloips);
+        nuevohiloips.start();
     }
 
     /** This method is called from within the constructor to
@@ -254,14 +258,9 @@ public class VentanaCliente extends javax.swing.JFrame {
     }//GEN-LAST:event_cancelarActionPerformed
 
     private void jTablaFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTablaFocusGained
-        // TODO add your handling code here:
     }//GEN-LAST:event_jTablaFocusGained
 
     private void jTablaFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTablaFocusLost
-        //     cancelar.setVisible(false);
-        //     pausar.setVisible(false);
-        //     pausar.setText("Pausar");
-        //     eliminar.setVisible(false);   // TODO add your handling code here:
     }//GEN-LAST:event_jTablaFocusLost
 
     private void pausarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pausarActionPerformed
@@ -321,7 +320,8 @@ public class VentanaCliente extends javax.swing.JFrame {
                 borrador.borrar();
                 ((DefaultTableModel) this.jTabla.getModel()).removeRow(selected);
             }
-
+            XMLCliente xml = new XMLCliente();
+            xml.escribirArchivos(this);
         } catch (IOException ex) {
             Logger.getLogger(VentanaCliente.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -399,6 +399,69 @@ public class VentanaCliente extends javax.swing.JFrame {
         return archi;
     }
 
+    public void reconectar(String nombre, int reconectar) {
+
+        // busca cual es la fila q tiene el nombre del archivo y busca el hilo asociado
+        int count = jTabla.getRowCount();
+        String nombreentabla;
+
+        System.out.println("Tabla");
+        System.out.println("ip1: " + this.ip0);
+        System.out.println("ip2: " + this.ip1);
+        System.out.println("ip3: " + this.ip2);
+
+        for (int i = 0; i < count; i++) {
+            nombreentabla = (String) jTabla.getValueAt(i, 0);
+            if (nombreentabla.matches(nombre) == true) {
+                this.selected = i;
+            }
+        }
+
+
+
+        boolean tratar = true;
+        switch (reconectar) {
+            case 1:
+                this.jIP.setText(ip1);
+                System.out.println("Tratando de reconectar con otro servidor 1    " + this.jIP.getText());
+                break;
+            case 2:
+                this.jIP.setText(ip2);
+                System.out.println("Tratando de reconectar con otro servidor 2    " + this.jIP.getText());
+                break;
+            case 3:
+                this.jIP.setText(ip0);
+                System.out.println("Tratando de reconectar con otro servidor 3    " + this.jIP.getText());
+                break;
+            default: {
+                tratar = false;
+                System.out.println("FUNDIOOOOOOOOOOOOOOOOOOOOO");
+            }
+        }
+
+        if (tratar == true) {
+            XMLCliente xml = new XMLCliente();
+
+            try {
+                int hilo = (Integer) jTabla.getValueAt(selected, 4);
+                VectorHilos.get(hilo).cerrar();
+                VectorHilos.setElementAt(null, hilo);
+                jTabla.setValueAt("Pausado", selected, 3);
+                jTabla.setValueAt(null, selected, 4);
+                xml.escribirArchivos(this);
+            } catch (Exception ex) {
+            }
+
+            // hacer esto con el nuevo ip
+            HiloDescarga nuevadescarga = new HiloDescarga(this, jIP.getText(), (String) jTabla.getValueAt(selected, 0), VectorHilos.size(), reconectar + 1);
+            VectorHilos.add(nuevadescarga);
+            Thread nuevohilodescarga = new Thread(nuevadescarga);
+            nuevohilodescarga.start();
+            xml.escribirArchivos(this);
+        }
+
+    }
+
     public void actualizarstatus(String status, int hilo, Long cantidad) {
 
         jTabla.setValueAt("Descargando", selected, 3);
@@ -452,13 +515,13 @@ public class VentanaCliente extends javax.swing.JFrame {
             this.jComboBox1.addItem(lista[i]);
         }
         jDescargar.setVisible(true);
-        jComboBox1.setVisible(true); 
+        jComboBox1.setVisible(true);
     }
 
     public String getIp0() {
         return ip0;
     }
-    
+
     public void setIp0(String ip0) {
         this.ip0 = ip0;
     }
@@ -478,6 +541,7 @@ public class VentanaCliente extends javax.swing.JFrame {
     public void setIp2(String ip2) {
         this.ip2 = ip2;
     }
+
     /**
      * @param args the command line arguments
      */
