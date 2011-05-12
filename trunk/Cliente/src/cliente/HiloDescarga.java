@@ -25,6 +25,7 @@ public class HiloDescarga implements Runnable {
     private String nombrearchivo;
     private VentanaCliente ventana;
     private int posicion;
+    private int reconectar = 1; // numero de veces q intenta reconectar
     private long tamano;
     private int accion;// variable para saber si se esta comezando a descargar por primera vez(0)
     private boolean continuar = true;
@@ -34,7 +35,12 @@ public class HiloDescarga implements Runnable {
         this.ip = ip;
         this.nombrearchivo = nombrearchivo;
         this.posicion = posicionvector;
-        this.accion = accion;
+        if (accion > 1 ){// si es dos es que se esta tratando de reconectar
+            this.reconectar = accion;
+            this.accion = 1;
+        }
+        else
+          this.accion = accion;
 
     }
 
@@ -49,6 +55,13 @@ public class HiloDescarga implements Runnable {
             w.close();
 
         } catch (UnknownHostException ex) {
+
+            if (reconectar>1)
+            {
+            System.out.println("TRATANDOO ARRIBAAAAAAAAAAAAAA");
+            this.ventana.reconectar(nombrearchivo, reconectar);
+            }
+            else
             System.out.println("Error de conexion");
 
             // JOptionPane.showMessageDialog(rootPane, "Error en la conexion", "", 1);
@@ -96,31 +109,39 @@ public class HiloDescarga implements Runnable {
                     ventana.actualizarstatus("Descargando", posicion, Long.valueOf("0"));
                 }
 
-
+                reconectar = 1;
                 byte[] buffer = new byte[1024];
                 int len;
                 int total = 0;
-                while ((len = entrada.read(buffer)) > 0 && continuar == true) {
-                    archivo.write(buffer, 0, len);
-                    total = total + len;
-                    ventana.actualizarcantidad(f.length(), posicion);
-                    //System.out.println("Recibiendo " + String.valueOf(len) + " total " + total);
-                }
+                String solicitud = null;
+                 
+                    while ((len = entrada.read(buffer)) > 0 && continuar == true)
+                    {
+                        //try{
+                        archivo.write(buffer, 0, len);
+                        total = total + len;
+                        ventana.actualizarcantidad(f.length(), posicion);
 
-                if (tamano != f.length() && continuar == true) {
-                    // aqui es que no se bajo completo y se perdio conexion con el servidor
-                    // tumbar este hilo y tratar de conectar con otro servidor.
-                    // revisar bien la parte del numero del hilo y el vector en la tabla.
-                    // (quitar el # hilo de la tabla)
-                    System.out.println("FUNDIO AQUI SE CONECTA CON OTRO");
-                }
+//                        }catch(Exception e)
+//                        { // validar que si fue aproposito que se cato no trate de reconectar
+//                          System.out.println("TOY AQUIIIIIIIIIIIIIIIIIIIIIII");
+//                          if (tamano == f.length())
+//                             continuar = false;
+//                        }
 
+                    }
+ 
+                if (tamano != f.length() && continuar == true)
+                {// tratar de reconectar
+                    System.out.println("TRATANDOOOOOOOOOOOOOOOOOOOOOOO");
+                    this.ventana.reconectar(nombrearchivo, reconectar);
+                }
 
                 System.out.println("Recibido!! QUITAR ESTE MENSAJE");
                 archivo.flush();
                 archivo.close();
             } catch (FileNotFoundException F) {
-                System.out.println("no existe");
+                System.out.println("Archivo no existe");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -130,6 +151,8 @@ public class HiloDescarga implements Runnable {
 
     private void pedirips() {
         try {
+
+            System.out.println("NUEVA TABLA");
             ventana.setIp0(entrada.readUTF());
             System.out.println(ventana.getIp0());
             ventana.setIp1(entrada.readUTF());
