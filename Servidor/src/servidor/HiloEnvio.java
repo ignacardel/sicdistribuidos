@@ -23,14 +23,22 @@ public class HiloEnvio implements Runnable {
     private String nombrearchivo;
     private String solicitud;
     private Socket s;
+    private String ip0 = null;
+    private String ip1 = null;
+    private String ip2 = null;
     private long tamano;
     private long cantidaddescargada;
+    private Ips ips = null;
 
-    HiloEnvio(Socket nuevosocketcliente) {
+    HiloEnvio(Socket nuevosocketcliente, Ips ips) {
         try {
+            this.ips = ips;
             s = nuevosocketcliente;
             entrada = new DataInputStream(s.getInputStream());
             salida = new DataOutputStream(s.getOutputStream());
+            this.ip0 = ips.getIp0();
+            this.ip1 = ips.getIp1();
+            this.ip2 = ips.getIp2();
         } catch (IOException ex) {
             Logger.getLogger(HiloEnvio.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -75,9 +83,11 @@ public class HiloEnvio implements Runnable {
             int len;
             int total = 0;
             while ((len = archivo.read(buffer)) > 0) {
+
+                this.compararips();
                 salida.write(buffer, 0, len);
                 total = total + len;
-                System.out.println("Enviando " + String.valueOf(len) + " total " + total);
+                //System.out.println("Enviando " + String.valueOf(len) + " total " + total);               
             }
             System.out.println("Fin de envio");
 
@@ -98,16 +108,70 @@ public class HiloEnvio implements Runnable {
         }
     }
 
+    private void compararips()
+    {
+        boolean cambio = false;
+
+        if(this.ip0.matches(ips.getIp0()) == false)
+        {
+            System.out.println("IP0 DIFERENTE "+ this.ip0+ " NUEVO "+ ips.getIp0());
+            cambio = true;
+            this.ip0 = ips.getIp0();
+        }
+        if(this.ip1.matches(ips.getIp1()) == false)
+        {
+            System.out.println("IP0 DIFERENTE "+ this.ip1+ " NUEVO "+ ips.getIp1());
+            cambio = true;
+            this.ip1 = ips.getIp1();
+        }
+        if(this.ip2.matches(ips.getIp2()) == false)
+        {
+            System.out.println("IP0 DIFERENTE "+ this.ip2+ " NUEVO "+ ips.getIp2());
+            cambio = true;
+            this.ip2 = ips.getIp2();
+        }
+
+        if(cambio == true)
+        {
+            try {
+                Socket sockectip = new Socket(s.getInetAddress().getHostAddress(), 6003);
+                DataInputStream entradaips = new DataInputStream(sockectip.getInputStream());
+                DataOutputStream salidaips = new DataOutputStream(sockectip.getOutputStream());
+                salidaips.writeUTF(ips.getips());
+                sockectip.close();
+            } catch (IOException ex) {
+                System.out.println("No mando bien los ips a: "+this.s.getInetAddress().getHostAddress());
+            }
+
+        }
+    }
+
     private void enviarips() {
         try {
-            XMLServidor xml = new XMLServidor();
-            ArrayList<String> listaips = xml.cargaIPs();
-            salida.writeUTF(listaips.get(0));
-            System.out.println(listaips.get(0));
-            salida.writeUTF(listaips.get(1));
-            System.out.println(listaips.get(1));
-            salida.writeUTF(listaips.get(2));
-            System.out.println(listaips.get(2));
+
+            //XMLServidor xml = new XMLServidor();
+            //ArrayList<String> listaips = xml.cargaIPs();
+            //this.ip0 =listaips.get(0);
+
+            if(ips.getIp0() == null)
+              salida.writeUTF("null");
+            else
+              salida.writeUTF(ips.getIp0());
+            System.out.println(ips.getIp0());
+
+            if(ips.getIp1() == null)
+              salida.writeUTF("null");
+            else
+              salida.writeUTF(ips.getIp1());
+            System.out.println(ips.getIp1());
+            
+            if(ips.getIp2() == null)
+              salida.writeUTF("null");
+            else
+              salida.writeUTF(ips.getIp2());
+            System.out.println(ips.getIp2());
+
+
         } catch (IOException ex) {
             Logger.getLogger(HiloEnvio.class.getName()).log(Level.SEVERE, null, ex);
         }

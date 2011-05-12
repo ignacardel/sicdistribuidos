@@ -91,14 +91,15 @@ public class Ventana extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        Ips ips = new Ips();
         jTextField1.setEnabled(false);
         jButton1.setEnabled(false);
-        servidor = new Servidor ();
+        servidor = new Servidor (ips);
         Thread nuevohiloservidor = new Thread(servidor);
         nuevohiloservidor.start();
 
         try {
-            hiloservidorconoce = new HiloServidor(this);
+            hiloservidorconoce = new HiloServidor(this, ips);
             Thread nuevohiloservidorconoce = new Thread(hiloservidorconoce);
             nuevohiloservidorconoce.start();
         } catch (UnknownHostException ex) {System.out.println("No consiguio localhost");}

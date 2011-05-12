@@ -27,13 +27,21 @@ public class HiloServidor implements Runnable {
     private String ip2 = null;
     private HiloChequea chequea1 = null;
     private HiloChequea chequea2 = null;
+    private Ips ips = null;
+    private boolean conocer = true;
 
-    public HiloServidor(Ventana ventana) throws UnknownHostException {
+    public HiloServidor(Ventana ventana, Ips ips ) throws UnknownHostException {
         this.ventana = ventana;
-        ip0 = InetAddress.getLocalHost().getHostAddress(); // asigan a ip0 la variable del localhost
-        XMLServidor xml = new XMLServidor();
-        xml.escribirIPs(ip0, ip1, ip2);
+        this.ips = ips;
+        ips.setIp0(InetAddress.getLocalHost().getHostAddress()); // asigan a ip0 la variable del localhost
+        //XMLServidor xml = new XMLServidor();
+        //xml.escribirIPs(ip0, ip1, ip2);
         //xml.cargaIPs();
+        
+    }
+
+    public void setConocer(boolean conocer) {
+        this.conocer = conocer;
     }
 
     public void run() {
@@ -58,6 +66,7 @@ public class HiloServidor implements Runnable {
 
                 this.guardarip(nuevoip, nuevosocketservidor, 0); // metodo para guardar la ip nueva
                 // tambien crea un objeto chequea
+
             }
 
         } catch (Exception e) {
@@ -81,7 +90,8 @@ public class HiloServidor implements Runnable {
             System.out.println("MI IP                : " + entrada.readUTF());
             System.out.println("");
 
-            this.guardarip(nuevoip, ser, 1);// metodo para guardar la ip nueva
+            this.guardarip(nuevoip, ser, 1);
+            // metodo para guardar la ip nueva
             // tambien crea un objeto chequea
             //ser.close();
         } catch (UnknownHostException ex) {
@@ -96,72 +106,54 @@ public class HiloServidor implements Runnable {
     private void guardarip(String nuevoip, Socket s, int opcion) {// cheque que variable esta libre y ahi guarda el ip y crea el objeto para estar revisando la conex
 
 
-        if (ip1 == null) {
-            ip1 = nuevoip;
-            System.out.println("Servidor 0: " + ip0);
-            System.out.println("SERVIDOR 1: " + ip1);
-            System.out.println("Servidor 2: " + ip2);
+        if (ips.getIp1().matches("null") == true) {
+            ips.setIp1( nuevoip );
+            System.out.println("Servidor 0: " + ips.getIp0());
+            System.out.println("SERVIDOR 1: " + ips.getIp1());
+            System.out.println("Servidor 2: " + ips.getIp2());
             chequea1 = null;
-            chequea1 = new HiloChequea(entrada, salida, this, opcion, 1);
+            chequea1 = new HiloChequea(entrada, salida, this, opcion, 1, ips);
             Thread chequeador1 = new Thread(chequea1);
             chequeador1.start();
             // empezar el hilo
+
         } else {
-            if (ip2 == null) {
-                ip2 = nuevoip;
-                System.out.println("Servidor 0: " + ip0);
-                System.out.println("Servidor 1: " + ip1);
-                System.out.println("SERVIDOR 2: " + ip2);
+            if (ips.getIp2().matches("null") == true) {
+                ips.setIp2(nuevoip);
+                System.out.println("Servidor 0: " + ips.getIp0());
+                System.out.println("Servidor 1: " + ips.getIp1());
+                System.out.println("SERVIDOR 2: " + ips.getIp2());
                 chequea2 = null;
-                chequea2 = new HiloChequea(entrada, salida, this, opcion, 2);
+                chequea2 = new HiloChequea(entrada, salida, this, opcion, 2,ips);
                 Thread chequeador2 = new Thread(chequea2);
                 chequeador2.start();
+
+                //mandar el ip al servidor que ta conectado con chequea 1
                 // empezar el hilo
+
             } else {
                 System.out.println("Ya estan conectados los tres servidores.");
             }
         }
-        XMLServidor xml = new XMLServidor();
-        xml.escribirIPs(ip0, ip1, ip2);
+        //XMLServidor xml = new XMLServidor();
+        //xml.escribirIPs(ip0, ip1, ip2);
 
     }
 
     public void quitarservidor(int num) {
         if (num == 1) {
-            System.out.println("Se ha caido al servidor # " + num + " con ip: " + this.ip1);
-            this.ip1 = null;
+            System.out.println("Se ha caido al servidor # " + num + " con ip: " + ips.getIp1());
+            ips.setIp1("null");
             this.chequea1 = null;
         }
         if (num == 2) {
-            System.out.println("Se ha caido al servidor # " + num + " con ip: " + this.ip2);
-            this.ip2 = null;
+            System.out.println("Se ha caido al servidor # " + num + " con ip: " + ips.getIp2());
+            ips.setIp2("null");
             this.chequea2 = null;
         }
-        XMLServidor xml = new XMLServidor();
-        xml.escribirIPs(ip0, ip1, ip2);
+        
+        //XMLServidor xml = new XMLServidor();
+        //xml.escribirIPs(ip0, ip1, ip2);
     }
 
-    public String getIp0() {
-        return ip0;
-    }
-
-    public void setIp0(String ip0) {
-        this.ip0 = ip0;
-    }
-
-    public String getIp1() {
-        return ip1;
-    }
-
-    public void setIp1(String ip1) {
-        this.ip1 = ip1;
-    }
-
-    public String getIp2() {
-        return ip2;
-    }
-
-    public void setIp2(String ip2) {
-        this.ip2 = ip2;
-    }
 }
